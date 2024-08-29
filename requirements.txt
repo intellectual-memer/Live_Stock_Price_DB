@@ -2,7 +2,7 @@ matplotlib
 matplotlib-inline
 pandas
 plotly
-python-dateutil==2.9.0.post0
+python-dateutil
 python-multipart
 pytz
 PyYAML
