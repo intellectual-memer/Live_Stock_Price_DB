@@ -140,11 +140,30 @@ for symbol in stock_symbols:
         change = last_price - real_time_data['Open'].iloc[0]
         pct_change = (change / real_time_data['Open'].iloc[0]) * 100
         # st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
-        if isinstance(last_price, (float, int)) and isinstance(change, (float, int)) and isinstance(pct_change, (float, int)):
-            st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
+        # if isinstance(last_price, (float, int)) and isinstance(change, (float, int)) and isinstance(pct_change, (float, int)):
+        #     st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
+        # else:
+        #     st.sidebar.error("Invalid data for stock price or change.")
+        # Check if the values are valid numbers
+        if last_price is not None and change is not None and pct_change is not None:
+            try:
+            # Try converting to float
+                last_price = float(last_price)
+                change = float(change)
+                pct_change = float(pct_change)
+        
+                # Ensure no NaN or invalid values
+                if last_price != last_price or change != change or pct_change != pct_change:
+                    raise ValueError("NaN detected in one of the values.")
+                
+                st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
+    
+            except ValueError as e:
+                print(f"Error: {e}")
+                st.sidebar.error("Invalid data for stock price or change.")
         else:
-            st.sidebar.error("Invalid data for stock price or change.")
+            st.sidebar.error("Missing data for stock price or change.")
         
 # Sidebar information section
 st.sidebar.subheader('About')
-st.sidebar.info('This dashboard provides stock data and technical indicators for various time periods. Use the sidebar to')
+st.sidebar.info('This dashboard provides stock data and technical indicators for various time periods. Use the sidebar to change stock ticker and select moving average metrics to look at.')
