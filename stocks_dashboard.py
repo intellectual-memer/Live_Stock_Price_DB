@@ -136,10 +136,25 @@ for symbol in stock_symbols:
     real_time_data = fetch_stock_data(symbol, '1d', '1m')
     if not real_time_data.empty:
         real_time_data = process_data(real_time_data)
-        last_price = real_time_data['Close'].iloc[-1]
-        change = last_price - real_time_data['Open'].iloc[0]
-        pct_change = (change / real_time_data['Open'].iloc[0]) * 100
-        st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
+        try:
+            # Extract values and convert to float
+            last_price = float(real_time_data['Close'].iloc[-1])
+            open_price = float(real_time_data['Open'].iloc[0])
+            change = last_price - open_price
+            pct_change = (change / open_price) * 100
+
+            # Validate numbers are not NaN
+            if pd.isna(last_price) or pd.isna(change) or pd.isna(pct_change):
+                st.sidebar.error(f"Unable to display price for {symbol}")
+            else:
+                st.sidebar.metric(
+                    f"{symbol}", 
+                    f"{last_price:.2f} USD",
+                    f"{change:.2f} ({pct_change:.2f}%)"
+                )
+        except (ValueError, TypeError) as e:
+            st.sidebar.error(f"Error displaying price for {symbol}")
+            print(f"Error processing {symbol}: {str(e)}")
 
 # Sidebar information section
 st.sidebar.subheader('About')
