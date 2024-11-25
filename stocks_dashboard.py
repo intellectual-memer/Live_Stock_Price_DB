@@ -32,13 +32,13 @@ def process_data(data):
 
 # Calculate basic metrics from the stock data
 def calculate_metrics(data):
-    last_close = data['Close'].iloc[-1]
-    prev_close = data['Close'].iloc[0]
+    last_close = data['Close'].iloc[-1]  # Ensure this is a scalar
+    prev_close = data['Close'].iloc[0]    # Ensure this is a scalar
     change = last_close - prev_close
     pct_change = (change / prev_close) * 100
-    high = data['High'].max()
-    low = data['Low'].min()
-    volume = data['Volume'].sum()
+    high = data['High'].max()              # Ensure this is a scalar
+    low = data['Low'].min()                 # Ensure this is a scalar
+    volume = data['Volume'].sum()           # Ensure this is a scalar
     return last_close, change, pct_change, high, low, volume
 
 # Add simple moving average (SMA) and exponential moving average (EMA) indicators
