@@ -7,11 +7,11 @@ from datetime import datetime, timedelta
 import pytz
 import ta
 
-#########################################################################################
-## PART 1: Define Functions for pulling, processing, and creating technical indicators ##
-#########################################################################################
+##########################################################################################
+## PART 1: Define Functions for Pulling, Processing, and Creating Techincial Indicators ##
+##########################################################################################
 
-# Fetch stock data based on the ticker, period and interval
+# Fetch stock data based on the ticker, period, and interval
 def fetch_stock_data(ticker, period, interval):
     end_date = datetime.now()
     if period == '1wk':
@@ -35,7 +35,7 @@ def calculate_metrics(data):
     last_close = data['Close'].iloc[-1]
     prev_close = data['Close'].iloc[0]
     change = last_close - prev_close
-    pct_change = (change/prev_close) * 100
+    pct_change = (change / prev_close) * 100
     high = data['High'].max()
     low = data['Low'].min()
     volume = data['Volume'].sum()
@@ -43,28 +43,8 @@ def calculate_metrics(data):
 
 # Add simple moving average (SMA) and exponential moving average (EMA) indicators
 def add_technical_indicators(data):
-    # # Ensure that data['Close'] is a 1-dimensional array
-    # # close_prices = data['Close'].squeeze()
-    # close_prices = data['Close'].values.flatten()  # Converts the data into a 1D numpy array
-    
-    # data['SMA_20'] = ta.trend.sma_indicator(close_prices, window=20)
-    # data['EMA_20'] = ta.trend.ema_indicator(close_prices, window=20)
-    
-    # Ensure that data['Close'] is a 1-dimensional pandas Series
-    close_prices = pd.Series(data['Close'].squeeze())  # Convert to Series if needed
-
-    # Check for NaN values and handle them if needed
-    if close_prices.isnull().sum() > 0:
-        print("Warning: NaN values found in 'Close', filling missing values.")
-        close_prices = close_prices.fillna(method='ffill')  # Forward fill NaNs
-
-    # Ensure enough data points for the window size
-    if len(close_prices) >= 20:
-        # Apply the SMA and EMA indicators
-        data['SMA_20'] = ta.trend.sma_indicator(close_prices, window=20)
-        data['EMA_20'] = ta.trend.ema_indicator(close_prices, window=20)
-    else:
-        print("Insufficient data points for SMA/EMA calculation.")
+    data['SMA_20'] = ta.trend.sma_indicator(data['Close'], window=20)
+    data['EMA_20'] = ta.trend.ema_indicator(data['Close'], window=20)
     return data
 
 ###############################################
@@ -79,20 +59,20 @@ st.title('Real Time Stock Dashboard')
 
 # 2A: SIDEBAR PARAMETERS ############
 
-# sidebar for user input parameters
+# Sidebar for user input parameters
 st.sidebar.header('Chart Parameters')
-ticker = st.sidebar.text_input('Ticker','ADBE')
-time_period = st.sidebar.selectbox('Time Period',['1d','1wk','1mo','1y','max'])
-chart_type = st.sidebar.selectbox('Chart Type',['Candlestick', 'Line'])
-indicators = st.sidebar.multiselect('Technical Indicators',['SMA 20', 'EMA 20'])
+ticker = st.sidebar.text_input('Ticker', 'ADBE')
+time_period = st.sidebar.selectbox('Time Period', ['1d', '1wk', '1mo', '1y', 'max'])
+chart_type = st.sidebar.selectbox('Chart Type', ['Candlestick', 'Line'])
+indicators = st.sidebar.multiselect('Technical Indicators', ['SMA 20', 'EMA 20'])
 
 # Mapping of time periods to data intervals
 interval_mapping = {
-    '1d':   '1m',
-    '1wk':  '30m',
-    '1mo':  '1d',
-    '1y':   '1wk',
-    'max':  '1wk'
+    '1d': '1m',
+    '1wk': '30m',
+    '1mo': '1d',
+    '1y': '1wk',
+    'max': '1wk'
 }
 
 
@@ -103,25 +83,17 @@ if st.sidebar.button('Update'):
     data = fetch_stock_data(ticker, time_period, interval_mapping[time_period])
     data = process_data(data)
     data = add_technical_indicators(data)
-
+    
     last_close, change, pct_change, high, low, volume = calculate_metrics(data)
-
-    # # Display main metrics
-    # st.metric(label=f"{ticker} Last Price", value=f"{last_close:.2f} USD", delta=f"{change:.2f} ({pct_change:.2f}%)")
-
-    # Assuming last_close is a Series, ensure it's a scalar
-    last_close = last_close.item()  # Converts to scalar value
-
-    # Now use the scalar in st.metric
+    
+    # Display main metrics
     st.metric(label=f"{ticker} Last Price", value=f"{last_close:.2f} USD", delta=f"{change:.2f} ({pct_change:.2f}%)")
-
-
-
+    
     col1, col2, col3 = st.columns(3)
-    col1.metric("High", f"{high:.2f} USD") 
-    col2.metric("Low", f"{low:.2f} USD") 
+    col1.metric("High", f"{high:.2f} USD")
+    col2.metric("Low", f"{low:.2f} USD")
     col3.metric("Volume", f"{volume:,}")
-
+    
     # Plot the stock price chart
     fig = go.Figure()
     if chart_type == 'Candlestick':
@@ -132,25 +104,25 @@ if st.sidebar.button('Update'):
                                      close=data['Close']))
     else:
         fig = px.line(data, x='Datetime', y='Close')
-
+    
     # Add selected technical indicators to the chart
     for indicator in indicators:
         if indicator == 'SMA 20':
             fig.add_trace(go.Scatter(x=data['Datetime'], y=data['SMA_20'], name='SMA 20'))
         elif indicator == 'EMA 20':
             fig.add_trace(go.Scatter(x=data['Datetime'], y=data['EMA_20'], name='EMA 20'))
-
+    
     # Format graph
     fig.update_layout(title=f'{ticker} {time_period.upper()} Chart',
                       xaxis_title='Time',
                       yaxis_title='Price (USD)',
                       height=600)
     st.plotly_chart(fig, use_container_width=True)
-
-    #Display historical data and technical indicators
+    
+    # Display historical data and technical indicators
     st.subheader('Historical Data')
     st.dataframe(data[['Datetime', 'Open', 'High', 'Low', 'Close', 'Volume']])
-
+    
     st.subheader('Technical Indicators')
     st.dataframe(data[['Datetime', 'SMA_20', 'EMA_20']])
 
@@ -159,7 +131,7 @@ if st.sidebar.button('Update'):
 
 # Sidebar section for real-time stock prices of selected symbols
 st.sidebar.header('Real-Time Stock Prices')
-stock_symbols = ['AAPL','GOOGL', 'AMZN', 'MSFT']
+stock_symbols = ['AAPL', 'GOOGL', 'AMZN', 'MSFT']
 for symbol in stock_symbols:
     real_time_data = fetch_stock_data(symbol, '1d', '1m')
     if not real_time_data.empty:
@@ -167,34 +139,10 @@ for symbol in stock_symbols:
         last_price = real_time_data['Close'].iloc[-1]
         change = last_price - real_time_data['Open'].iloc[0]
         pct_change = (change / real_time_data['Open'].iloc[0]) * 100
-        # st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
-        # if isinstance(last_price, (float, int)) and isinstance(change, (float, int)) and isinstance(pct_change, (float, int)):
-        #     st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
-        # else:
-        #     st.sidebar.error("Invalid data for stock price or change.")
-        # Check if the values are valid numbers
-        if last_price is not None and change is not None and pct_change is not None:
-            try:
-            # Try converting to float
-                # last_price = float(last_price)
-                # change = float(change)
-                # pct_change = float(pct_change)
-                last_price = float(last_price.iloc[0])  # If last_price is a Series, use .iloc[0]
-                change = float(change.iloc[0])  # Similarly for change
-                pct_change = float(pct_change.iloc[0])  # Similarly for pct_change
-        
-                # Ensure no NaN or invalid values
-                if last_price != last_price or change != change or pct_change != pct_change:
-                    raise ValueError("NaN detected in one of the values.")
-                
-                st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
-    
-            except ValueError as e:
-                print(f"Error: {e}")
-                st.sidebar.error("Invalid data for stock price or change.")
-        else:
-            st.sidebar.error("Missing data for stock price or change.")
-        
+        st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
+
 # Sidebar information section
 st.sidebar.subheader('About')
-st.sidebar.info('This dashboard provides stock data and technical indicators for various time periods. Use the sidebar to change stock ticker and select moving average metrics to look at.')
+st.sidebar.info('This dashboard provides stock data and technical indicators for various time periods. Use the sidebar to customize your view.')
+
+
