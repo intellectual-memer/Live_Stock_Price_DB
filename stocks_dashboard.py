@@ -140,10 +140,10 @@ for symbol in stock_symbols:
         change = last_price - real_time_data['Open'].iloc[0]
         pct_change = (change / real_time_data['Open'].iloc[0]) * 100
         # st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
-        if last_price is not None and change is not None and pct_change is not None:
+        if isinstance(last_price, (float, int)) and isinstance(change, (float, int)) and isinstance(pct_change, (float, int)):
             st.sidebar.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
         else:
-            st.sidebar.error("Missing data for stock price or change.")
+            st.sidebar.error("Invalid data for stock price or change.")
         
 # Sidebar information section
 st.sidebar.subheader('About')
