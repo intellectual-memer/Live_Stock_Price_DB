@@ -47,8 +47,8 @@ def add_technical_indicators(data):
     # close_prices = data['Close'].squeeze()
     close_prices = data['Close'].values.flatten()  # Converts the data into a 1D numpy array
     
-    data['SMA_20'] = ta.trend.sma_indicator(data['Close'], window=20)
-    data['EMA_20'] = ta.trend.ema_indicator(data['Close'], window=20)
+    data['SMA_20'] = ta.trend.sma_indicator(close_prices, window=20)
+    data['EMA_20'] = ta.trend.ema_indicator(close_prices, window=20)
     return data
 
 ###############################################
