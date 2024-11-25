@@ -44,7 +44,8 @@ def calculate_metrics(data):
 # Add simple moving average (SMA) and exponential moving average (EMA) indicators
 def add_technical_indicators(data):
     # Ensure that data['Close'] is a 1-dimensional array
-    close_prices = data['Close'].squeeze()  # or data['Close'].values.flatten()
+    # close_prices = data['Close'].squeeze()
+    close_prices = data['Close'].values.flatten()  # Converts the data into a 1D numpy array
     
     data['SMA_20'] = ta.trend.sma_indicator(data['Close'], window=20)
     data['EMA_20'] = ta.trend.ema_indicator(data['Close'], window=20)
