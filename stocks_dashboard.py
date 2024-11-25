@@ -109,11 +109,12 @@ if st.sidebar.button('Update'):
     # # Display main metrics
     # st.metric(label=f"{ticker} Last Price", value=f"{last_close:.2f} USD", delta=f"{change:.2f} ({pct_change:.2f}%)")
 
-    # Assuming last_close might be a Series, we ensure it's a scalar
-    last_close = last_close.iloc[0]  # or use last_close = last_close.values[0]
+    # Assuming last_close is a Series, ensure it's a scalar
+    last_close = last_close.item()  # Converts to scalar value
 
     # Now use the scalar in st.metric
     st.metric(label=f"{ticker} Last Price", value=f"{last_close:.2f} USD", delta=f"{change:.2f} ({pct_change:.2f}%)")
+
 
 
     col1, col2, col3 = st.columns(3)
