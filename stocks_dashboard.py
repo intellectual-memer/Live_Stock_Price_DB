@@ -43,12 +43,28 @@ def calculate_metrics(data):
 
 # Add simple moving average (SMA) and exponential moving average (EMA) indicators
 def add_technical_indicators(data):
-    # Ensure that data['Close'] is a 1-dimensional array
-    # close_prices = data['Close'].squeeze()
-    close_prices = data['Close'].values.flatten()  # Converts the data into a 1D numpy array
+    # # Ensure that data['Close'] is a 1-dimensional array
+    # # close_prices = data['Close'].squeeze()
+    # close_prices = data['Close'].values.flatten()  # Converts the data into a 1D numpy array
     
-    data['SMA_20'] = ta.trend.sma_indicator(close_prices, window=20)
-    data['EMA_20'] = ta.trend.ema_indicator(close_prices, window=20)
+    # data['SMA_20'] = ta.trend.sma_indicator(close_prices, window=20)
+    # data['EMA_20'] = ta.trend.ema_indicator(close_prices, window=20)
+    
+    # Ensure that data['Close'] is a 1-dimensional pandas Series
+    close_prices = pd.Series(data['Close'].squeeze())  # Convert to Series if needed
+
+    # Check for NaN values and handle them if needed
+    if close_prices.isnull().sum() > 0:
+        print("Warning: NaN values found in 'Close', filling missing values.")
+        close_prices = close_prices.fillna(method='ffill')  # Forward fill NaNs
+
+    # Ensure enough data points for the window size
+    if len(close_prices) >= 20:
+        # Apply the SMA and EMA indicators
+        data['SMA_20'] = ta.trend.sma_indicator(close_prices, window=20)
+        data['EMA_20'] = ta.trend.ema_indicator(close_prices, window=20)
+    else:
+        print("Insufficient data points for SMA/EMA calculation.")
     return data
 
 ###############################################
