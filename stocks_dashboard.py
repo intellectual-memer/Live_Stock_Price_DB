@@ -43,10 +43,13 @@ def calculate_metrics(data):
 
 # Add simple moving average (SMA) and exponential moving average (EMA) indicators
 def add_technical_indicators(data):
-    # Convert Close prices to 1D array for technical analysis
-    close_prices = data['Close'].values.flatten()
-    
-    # Calculate technical indicators
+    # Convert Close prices to pandas Series if not already
+    if not isinstance(data['Close'], pd.Series):
+        close_prices = pd.Series(data['Close'])
+    else:
+        close_prices = data['Close']
+        
+    # Calculate SMA and EMA
     data['SMA_20'] = ta.trend.sma_indicator(close_prices, window=20)
     data['EMA_20'] = ta.trend.ema_indicator(close_prices, window=20)
     return data
