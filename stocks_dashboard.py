@@ -44,8 +44,8 @@ def calculate_metrics(data):
 # Add simple moving average (SMA) and exponential moving average (EMA) indicators
 def add_technical_indicators(data):
     # Convert Close prices to pandas Series if not already
-    if not isinstance(data['Close'], pd.Series):
-        close_prices = pd.Series(data['Close'])
+    if isinstance(data['Close'], pd.DataFrame):  # Check if 'Close' is a DataFrame
+        close_prices = data['Close'].squeeze()  # Convert to Series
     else:
         close_prices = data['Close']
         
