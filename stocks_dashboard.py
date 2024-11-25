@@ -152,9 +152,12 @@ for symbol in stock_symbols:
         if last_price is not None and change is not None and pct_change is not None:
             try:
             # Try converting to float
-                last_price = float(last_price)
-                change = float(change)
-                pct_change = float(pct_change)
+                # last_price = float(last_price)
+                # change = float(change)
+                # pct_change = float(pct_change)
+                last_price = float(last_price.iloc[0])  # If last_price is a Series, use .iloc[0]
+                change = float(change.iloc[0])  # Similarly for change
+                pct_change = float(pct_change.iloc[0])  # Similarly for pct_change
         
                 # Ensure no NaN or invalid values
                 if last_price != last_price or change != change or pct_change != pct_change:
